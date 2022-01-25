@@ -37,8 +37,9 @@ func TestDM1FrameEncoder(t *testing.T) {
 func TestDM1FrameDecoder(t *testing.T) {
 	var dataBuffer = []byte{0x55, 0xFF, 0xBC, 0x13, 0x0C, 0x03}
 	var identifier uint32 = 0x18FECA41
-	dm1 := NewDM1AndDecode(identifier, dataBuffer)
+	dm1, err := NewDM1AndDecode(identifier, dataBuffer)
 	assert.NotNil(t, dm1)
+	assert.Nil(t, err)
 	assert.Equal(t, dm1.GetDTCCount(), 1)
 	assert.Equal(t, dm1.GetPriority(), uint8(6))
 	assert.Equal(t, dm1.GetSrcAddr(), uint32(0x41))

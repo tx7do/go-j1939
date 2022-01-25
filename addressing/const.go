@@ -1,8 +1,8 @@
 package addressing
 
 const (
-	AddressClaimName   = "Address Claim"
 	AddressClaimPgn    = 0x00EE00
+	AddressClaimName   = "Address Claim"
 	AddressFrameLength = 8
 
 	ArbitraryAddrCapableMask   = 0x1

@@ -23,8 +23,8 @@ type DM1 struct {
 	dtcs DTCSet
 }
 
-func NewDM1() *DM1 {
-	c := &DM1{}
+func NewDM1() DM1 {
+	c := DM1{}
 	c.SetPGN(Dm1Pgn)
 	c.SetName(Dm1Name)
 	c.SetDstAddr(j1939.InvalidAddress)
@@ -34,17 +34,17 @@ func NewDM1() *DM1 {
 	return c
 }
 
-func NewDM1AndDecode(identifier uint32, buffer []byte) *DM1 {
-	c := &DM1{}
+func NewDM1AndDecode(identifier uint32, buffer []byte) (DM1, error) {
+	c := DM1{}
 	c.SetPGN(Dm1Pgn)
 	c.SetName(Dm1Name)
 	c.SPNs = generic_frame.SpnMap{}
 	c.registerDefaultStatusSpn()
 	err := c.Decode(identifier, buffer)
 	if err != nil {
-		return nil
+		return c, err
 	}
-	return c
+	return c, nil
 }
 
 func (c *DM1) registerDefaultStatusSpn() {

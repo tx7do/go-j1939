@@ -11,16 +11,16 @@ type AddressClaimFrame struct {
 	ecuName *EcuName
 }
 
-func NewAddressClaimFrame() *AddressClaimFrame {
-	c := &AddressClaimFrame{}
+func NewAddressClaimFrame() AddressClaimFrame {
+	c := AddressClaimFrame{}
 	c.SetPGN(AddressClaimPgn)
 	c.SetName(AddressClaimName)
 	c.ecuName = NewEcuName()
-
 	return c
 }
-func NewAddressClaimFrameWithEcuName(name *EcuName) *AddressClaimFrame {
-	c := &AddressClaimFrame{}
+
+func NewAddressClaimFrameWithEcuName(name *EcuName) AddressClaimFrame {
+	c := AddressClaimFrame{}
 	c.SetPGN(AddressClaimPgn)
 	c.SetName(AddressClaimName)
 	c.ecuName = name

@@ -8,15 +8,15 @@ import (
 )
 
 const (
-	TpCmPgn  = 0x00EC00
-	TpCmSize = 8
-	TpcmName = "Transport Connection Management"
+	TPCMPgn  = 0x00EC00
+	TPCMName = "Transport Connection Management"
+	TPCMSize = 8
 
-	CtrlTpcmRts   = 16
-	CtrlTpcmCts   = 17
-	CtrlTpcmAck   = 19
-	CtrlTpcmBam   = 32
-	CtrlTpcmAbort = 255
+	CtrlTPCMRts   = 16
+	CtrlTPCMCts   = 17
+	CtrlTPCMAck   = 19
+	CtrlTPCMBam   = 32
+	CtrlTPCMAbort = 255
 )
 
 type TPCMFrame struct {
@@ -47,10 +47,10 @@ type TPCMFrame struct {
 	DataPgn uint32
 }
 
-func NewTPCMFrame() *TPCMFrame {
-	c := &TPCMFrame{}
-	c.SetPGN(TpCmPgn)
-	c.SetName(TpcmName)
+func NewTPCMFrame() TPCMFrame {
+	c := TPCMFrame{}
+	c.SetPGN(TPCMPgn)
+	c.SetName(TPCMName)
 	c.CtrlType = 0
 	c.TotalMsgSize = 0
 	c.TotalPackets = 0
@@ -80,7 +80,7 @@ func (c *TPCMFrame) Clear() {
 
 // GetDataLength 获取数据的长度
 func (c *TPCMFrame) GetDataLength() uint32 {
-	return TpCmSize
+	return TPCMSize
 }
 
 // Decode 解码
@@ -91,30 +91,30 @@ func (c *TPCMFrame) Decode(identifier uint32, buffer []byte) error {
 	}
 
 	length := len(buffer)
-	if length != TpCmSize {
+	if length != TPCMSize {
 		return errors.New(
 			fmt.Sprintf("[TPCMFrame::Decode] Buffer length does not match the expected length. Buffer length: %d. Expected length: %d",
-				length, TpCmSize))
+				length, TPCMSize))
 	}
 
 	c.CtrlType = buffer[0]
 
 	switch c.CtrlType {
 
-	case CtrlTpcmRts:
+	case CtrlTPCMRts:
 		c.decodeRTS(buffer[1:])
 		break
 
-	case CtrlTpcmCts:
+	case CtrlTPCMCts:
 		c.decodeCTS(buffer[1:])
 		break
-	case CtrlTpcmAck:
+	case CtrlTPCMAck:
 		c.decodeEndOfMsgACK(buffer[1:])
 		break
-	case CtrlTpcmAbort:
+	case CtrlTPCMAbort:
 		c.decodeConnAbort(buffer[1:])
 		break
-	case CtrlTpcmBam:
+	case CtrlTPCMBam:
 		c.decodeBAM(buffer[1:])
 		break
 	default:
@@ -162,25 +162,25 @@ func (c *TPCMFrame) Encode(identifier *uint32, buffer []byte) error {
 		return err
 	}
 
-	//buffer := make([]byte, TpCmSize)
+	//buffer := make([]byte, TPCMSize)
 
 	buffer[0] = c.CtrlType
 
 	switch c.CtrlType {
-	case CtrlTpcmRts:
+	case CtrlTPCMRts:
 		c.encodeRTS(buffer[1:])
 		break
 
-	case CtrlTpcmCts:
+	case CtrlTPCMCts:
 		c.encodeCTS(buffer[1:])
 		break
-	case CtrlTpcmAck:
+	case CtrlTPCMAck:
 		c.encodeEndOfMsgACK(buffer[1:])
 		break
-	case CtrlTpcmAbort:
+	case CtrlTPCMAbort:
 		c.encodeConnAbort(buffer[1:])
 		break
-	case CtrlTpcmBam:
+	case CtrlTPCMBam:
 		c.encodeBAM(buffer[1:])
 		break
 	default:

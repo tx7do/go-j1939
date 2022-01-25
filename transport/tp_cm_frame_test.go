@@ -19,7 +19,7 @@ func TestTpCmFrameDecoder(t *testing.T) {
 func TestTpCmFrameEncoder(t *testing.T) {
 	c := NewTPCMFrame()
 	var identifier uint32 = 0
-	buff := make([]byte, TpCmSize)
+	buff := make([]byte, TPCMSize)
 	err := c.Encode(&identifier, buff)
 	assert.Nil(t, err)
 	fmt.Println(c.ToString())

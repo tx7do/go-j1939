@@ -34,10 +34,10 @@ type J1939Frame interface {
 	GetPDUFormatGroup() EJ1939PduFormat
 
 	GetSrcAddr() uint32
-	SetSrcAddr(src uint32)
+	SetSrcAddr(src uint32) bool
 
 	GetDstAddr() uint32
-	SetDstAddr(dst uint32)
+	SetDstAddr(dst uint32) bool
 
 	GetPGN() uint32
 	SetPGN(pgn uint32)
@@ -112,8 +112,9 @@ func (c *J1939FrameImpl) GetPDUSpecific() uint32 {
 func (c *J1939FrameImpl) GetSrcAddr() uint32 {
 	return c.SrcAddr
 }
-func (c *J1939FrameImpl) SetSrcAddr(src uint32) {
+func (c *J1939FrameImpl) SetSrcAddr(src uint32) bool {
 	c.SrcAddr = src
+	return true
 }
 
 func (c *J1939FrameImpl) GetPDUFormatGroup() EJ1939PduFormat {

@@ -31,7 +31,7 @@ func (c *Fragmenter) Fragment(frame j1939_frame.J1939Frame) bool {
 	c.Clear()
 
 	//Bam type
-	c.CMFrame.SetCtrlType(transport.CtrlTpcmBam)
+	c.CMFrame.SetCtrlType(transport.CtrlTPCMBam)
 
 	//Same source and priority as the original frame
 	c.CMFrame.SetPriority(frame.GetPriority())

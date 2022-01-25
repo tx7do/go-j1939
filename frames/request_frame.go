@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	RequestFrameLength = 3
 	RequestPgn         = 0xEA00
 	RequestFrameName   = "Request"
+	RequestFrameLength = 3
 )
 
 type RequestFrame struct {
@@ -19,17 +19,17 @@ type RequestFrame struct {
 	requestPGN uint32
 }
 
-func NewRequestFrame() *RequestFrame {
-	c := &RequestFrame{}
+func NewRequestFrame() RequestFrame {
+	c := RequestFrame{}
 	c.requestPGN = 0
 	c.SetPGN(RequestPgn)
 	c.SetName(RequestFrameName)
 	return c
 }
 
-func NewRequestFrameWithPGN(requestPGN uint32) *RequestFrame {
-	c := &RequestFrame{}
-	c.requestPGN = requestPGN
+func NewRequestFrameWithPGN(pgn uint32) RequestFrame {
+	c := RequestFrame{}
+	c.requestPGN = pgn
 	c.SetPGN(RequestPgn)
 	c.SetName(RequestFrameName)
 	return c

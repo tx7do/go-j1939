@@ -7,18 +7,18 @@ import (
 )
 
 const (
+	FMS1Pgn         = 0xFD7D
+	FMS1Name        = "FMS1"
+	FMS1FrameLength = 8
+
 	BlockIdMask = 0xF
 
-	TtsMask                = 0x7
-	TtsHighPartShift       = 4
-	TtssPerBlock     uint8 = 15
-	TtsEncodingMask  uint8 = 0x8
+	TTSMask                = 0x7
+	TTSHighPartShift       = 4
+	TTSsPerBlock     uint8 = 15
+	TTSEncodingMask  uint8 = 0x8
 
 	NumberOfBlocks = 4
-
-	Fms1FrameLength = 8
-	Fms1Pgn         = 0xFD7D
-	Fms1Name        = "FMS1"
 )
 
 type TellTaleMap map[uint8]*TellTale
@@ -29,23 +29,23 @@ type FMS1Frame struct {
 	TTSs    TellTaleMap
 }
 
-func NewFMS1Frame() *FMS1Frame {
-	c := &FMS1Frame{}
-	c.SetPGN(Fms1Pgn)
-	c.SetName(Fms1Name)
+func NewFMS1Frame() FMS1Frame {
+	c := FMS1Frame{}
+	c.SetPGN(FMS1Pgn)
+	c.SetName(FMS1Name)
 	c.BlockID = NumberOfBlocks
 	c.TTSs = TellTaleMap{}
 	return c
 }
 
-func NewFMS1FrameWithBlockID(blockID uint8) *FMS1Frame {
-	c := &FMS1Frame{}
-	c.SetPGN(Fms1Pgn)
-	c.SetName(Fms1Name)
+func NewFMS1FrameWithBlockID(blockID uint8) FMS1Frame {
+	c := FMS1Frame{}
+	c.SetPGN(FMS1Pgn)
+	c.SetName(FMS1Name)
 	c.BlockID = blockID
 	c.TTSs = TellTaleMap{}
 
-	for i := c.BlockID*TtssPerBlock + 1; i < (c.BlockID+1)*TtssPerBlock+1; i++ {
+	for i := c.BlockID*TTSsPerBlock + 1; i < (c.BlockID+1)*TTSsPerBlock+1; i++ {
 		c.TTSs[i] = NewTellTaleWithValue(i, TtsStatusNotAvailable)
 	}
 
@@ -53,7 +53,7 @@ func NewFMS1FrameWithBlockID(blockID uint8) *FMS1Frame {
 }
 
 func (c *FMS1Frame) GetDataLength() uint32 {
-	return Fms1FrameLength
+	return FMS1FrameLength
 }
 
 func (c *FMS1Frame) HasTTS(number uint8) bool {
@@ -102,11 +102,11 @@ func (c *FMS1Frame) Decode(identifier uint32, buffer []byte) error {
 	}
 
 	length := len(buffer)
-	if length != Fms1FrameLength { //Check the length first
+	if length != FMS1FrameLength { //Check the length first
 		return errors.New(
 			fmt.Sprintf(
 				"[FMS1Frame::Decode] Buffer length does not match the expected length. Buffer length:%d. Expected length: %d",
-				length, Fms1FrameLength),
+				length, FMS1FrameLength),
 		)
 	}
 
@@ -127,17 +127,17 @@ func (c *FMS1Frame) Decode(identifier uint32, buffer []byte) error {
 
 	c.BlockID = blockID
 
-	tts1Number := TtssPerBlock*c.BlockID + 1
-	tts1 := NewTellTaleWithValue(tts1Number, TtsStatusType((buffer[0]>>TtsHighPartShift)&TtsMask))
+	tts1Number := TTSsPerBlock*c.BlockID + 1
+	tts1 := NewTellTaleWithValue(tts1Number, TtsStatusType((buffer[0]>>TTSHighPartShift)&TTSMask))
 	c.TTSs[tts1Number] = tts1
 
 	var i uint8 = 0
-	for i = 1; i < Fms1FrameLength; i++ {
-		ttsLowPartNumber := (TtssPerBlock * c.BlockID) + 2*i
-		ttsHighPartNumber := (TtssPerBlock * c.BlockID) + 2*i + 1
+	for i = 1; i < FMS1FrameLength; i++ {
+		ttsLowPartNumber := (TTSsPerBlock * c.BlockID) + 2*i
+		ttsHighPartNumber := (TTSsPerBlock * c.BlockID) + 2*i + 1
 
-		ttsLowPartStatus := buffer[i] & TtsMask
-		ttsHighPartStatus := (buffer[i] >> TtsHighPartShift) & TtsMask
+		ttsLowPartStatus := buffer[i] & TTSMask
+		ttsHighPartStatus := (buffer[i] >> TTSHighPartShift) & TTSMask
 
 		c.TTSs[ttsLowPartNumber] = NewTellTaleWithValue(ttsLowPartNumber, TtsStatusType(ttsLowPartStatus))
 		c.TTSs[ttsHighPartNumber] = NewTellTaleWithValue(ttsHighPartNumber, TtsStatusType(ttsHighPartStatus))
@@ -155,11 +155,11 @@ func (c *FMS1Frame) Encode(identifier *uint32, buffer []byte) error {
 
 	length := len(c.TTSs)
 
-	if length != int(TtssPerBlock) {
+	if length != int(TTSsPerBlock) {
 		return errors.New(
 			fmt.Sprintf(
 				"[FMS1Frame::Encode] There are not %d defined",
-				TtssPerBlock),
+				TTSsPerBlock),
 		)
 	}
 
@@ -174,28 +174,28 @@ func (c *FMS1Frame) Encode(identifier *uint32, buffer []byte) error {
 		}
 	}
 	//Check if the number for every TTS is the right one.
-	if minKey <= c.BlockID*TtssPerBlock || maxKey > (c.BlockID+1)*TtssPerBlock {
+	if minKey <= c.BlockID*TTSsPerBlock || maxKey > (c.BlockID+1)*TTSsPerBlock {
 		return errors.New("[FMS1Frame::Encode] TTS numbers are not the proper ones for this block")
 	}
 
-	tts1Number := TtssPerBlock*c.BlockID + 1
+	tts1Number := TTSsPerBlock*c.BlockID + 1
 	tts1, ok := c.TTSs[tts1Number]
 	if ok {
 		buffer[0] = (c.BlockID & BlockIdMask) |
-			((uint8(tts1.GetStatus()) | TtsEncodingMask) << TtsHighPartShift)
+			((uint8(tts1.GetStatus()) | TTSEncodingMask) << TTSHighPartShift)
 	}
 
 	var i uint8 = 0
-	for i = 1; i < Fms1FrameLength; i++ {
-		ttsLowPartNumber := TtssPerBlock*c.BlockID + 2*i
-		ttsHighPartNumber := TtssPerBlock*c.BlockID + 2*i + 1
+	for i = 1; i < FMS1FrameLength; i++ {
+		ttsLowPartNumber := TTSsPerBlock*c.BlockID + 2*i
+		ttsHighPartNumber := TTSsPerBlock*c.BlockID + 2*i + 1
 
 		ttsLow, okLow := c.TTSs[ttsLowPartNumber]
 		ttsHigh, okHigh := c.TTSs[ttsHighPartNumber]
 
 		if okLow && okHigh {
-			buffer[i] = (uint8(ttsLow.GetStatus()) | TtsEncodingMask) |
-				((uint8(ttsHigh.GetStatus()) | TtsEncodingMask) << TtsHighPartShift)
+			buffer[i] = (uint8(ttsLow.GetStatus()) | TTSEncodingMask) |
+				((uint8(ttsHigh.GetStatus()) | TTSEncodingMask) << TTSHighPartShift)
 		}
 	}
 

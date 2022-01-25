@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	TpDtPgn   = 0x00EB00
-	TpdtName  = "Transport Data"
+	TPDTPgn   = 0x00EB00
+	TPDTName  = "Transport Data"
 	BamDtSize = 8
 )
 
@@ -21,19 +21,19 @@ type TPDTFrame struct {
 	Data DataBuffer
 }
 
-func NewTPDTFrame() *TPDTFrame {
-	c := &TPDTFrame{}
-	c.SetPGN(TpDtPgn)
-	c.SetName(TpdtName)
+func NewTPDTFrame() TPDTFrame {
+	c := TPDTFrame{}
+	c.SetPGN(TPDTPgn)
+	c.SetName(TPDTName)
 	c.SetSq(0)
 	c.SetData(DataBuffer{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF})
 	return c
 }
 
-func NewTPDTFrameWithData(sq uint8, data DataBuffer) *TPDTFrame {
-	c := &TPDTFrame{}
-	c.SetPGN(TpDtPgn)
-	c.SetName(TpdtName)
+func NewTPDTFrameWithData(sq uint8, data DataBuffer) TPDTFrame {
+	c := TPDTFrame{}
+	c.SetPGN(TPDTPgn)
+	c.SetName(TPDTName)
 	c.SetSq(sq)
 	c.SetData(data)
 	return c
