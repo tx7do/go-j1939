@@ -2,6 +2,7 @@ package frames
 
 import (
 	"errors"
+	j1939 "go-j1939"
 	"go-j1939/diagnosis"
 	"go-j1939/generic_frame"
 	"go-j1939/spn"
@@ -26,7 +27,23 @@ func NewDM1() *DM1 {
 	c := &DM1{}
 	c.SetPGN(Dm1Pgn)
 	c.SetName(Dm1Name)
+	c.SetDstAddr(j1939.InvalidAddress)
+	c.SetSrcAddr(j1939.InvalidAddress)
+	c.SPNs = generic_frame.SpnMap{}
 	c.registerDefaultStatusSpn()
+	return c
+}
+
+func NewDM1AndDecode(identifier uint32, buffer []byte) *DM1 {
+	c := &DM1{}
+	c.SetPGN(Dm1Pgn)
+	c.SetName(Dm1Name)
+	c.SPNs = generic_frame.SpnMap{}
+	c.registerDefaultStatusSpn()
+	err := c.Decode(identifier, buffer)
+	if err != nil {
+		return nil
+	}
 	return c
 }
 
@@ -95,6 +112,9 @@ func (c *DM1) SetDTC(pos uint32, dtc *diagnosis.DTC) bool {
 func (c *DM1) GetDTCs() DTCSet {
 	return c.dtcs
 }
+func (c *DM1) GetDTCCount() int {
+	return len(c.dtcs)
+}
 
 func (c *DM1) ToString() string {
 	retStr := c.GenericFrame.ToString()
@@ -148,7 +168,7 @@ func (c *DM1) Encode(identifier *uint32, buffer []byte) error {
 	offset := int(lampStatLength)
 	lengthDTC := len(c.dtcs)
 	for i := 0; i < lengthDTC; i++ {
-		_ = c.dtcs[i].Encode(buffer[offset:diagnosis.DtcFrameSize])
+		_ = c.dtcs[i].Encode(buffer[offset : offset+diagnosis.DtcFrameSize])
 		offset += diagnosis.DtcFrameSize
 	}
 

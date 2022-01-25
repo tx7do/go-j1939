@@ -3,6 +3,7 @@ package generic_frame
 import (
 	"errors"
 	"fmt"
+	j1939 "go-j1939"
 	"go-j1939/j1939_frame"
 	"go-j1939/spn"
 	"go-j1939/util/math"
@@ -19,6 +20,8 @@ type GenericFrame struct {
 
 func NewGenericFrame(pgn uint32) *GenericFrame {
 	c := &GenericFrame{}
+	c.J1939FrameImpl.SrcAddr = j1939.InvalidAddress
+	c.J1939FrameImpl.DstAddr = j1939.InvalidAddress
 	c.SetPGN(pgn)
 	c.SPNs = SpnMap{}
 	c.Length = 0
